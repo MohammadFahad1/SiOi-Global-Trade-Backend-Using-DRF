@@ -1,0 +1,7 @@
+/sioi_env
+/__pycache__/
+*.pyc
+.env
+
+# VSCode settings
+.vscode/
