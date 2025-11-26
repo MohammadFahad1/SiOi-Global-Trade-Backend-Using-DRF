@@ -7,11 +7,19 @@ from product.serializers import ProductSerializer, CategorySerializer
 from django.db.models import Count
 # Create your views here.
 
-@api_view()
+@api_view(['GET', 'POST'])
 def view_products(request):
-    products = Product.objects.select_related('category').all()
-    serializer = ProductSerializer(products, many=True, context={'request': request})
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    if request.method == 'GET':
+        products = Product.objects.select_related('category').all()
+        serializer = ProductSerializer(products, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    if request.method == 'POST':
+        serializer = ProductSerializer(data=request.data)
+        if serializer.is_valid():
+             serializer.save()
+             return Response("Product created successfully")
+        else:
+             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view()
 def view_specific_products(request, pk):
