@@ -30,6 +30,11 @@ class CategorySerializer(serializers.ModelSerializer):
     
     product_count = serializers.IntegerField()
 
+class NestedCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'description']
+
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
@@ -37,7 +42,8 @@ class ProductSerializer(serializers.ModelSerializer):
     
     price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax')
     category_info = serializers.HyperlinkedRelatedField(queryset=Category.objects.all(), view_name='category_detail', source='category')
-    category = CategorySerializer()
+    # category = serializers.ModelField(model_field=Category()._meta.get_field('name'))
+    category = NestedCategorySerializer()
 
     def calculate_tax(self, product):
         return round(product.price * Decimal('1.1'), 2)

@@ -27,6 +27,6 @@ def view_categories(request):
 
 @api_view()
 def view_specific_category(request, pk):
-     category = get_object_or_404(Category, pk=pk)
-     serializer = CategorySerializer(category).data
-     return Response(serializer, status=status.HTTP_200_OK)
+    category = Category.objects.annotate(product_count=Count('products')).get(pk=pk)
+    serializer = CategorySerializer(category).data
+    return Response(serializer, status=status.HTTP_200_OK)
