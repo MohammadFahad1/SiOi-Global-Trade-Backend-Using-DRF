@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from product.models import Product, Category
-from product.serializers import ProductSerializer, CategorySerializer
+from product.serializers import ProductSerializer, CategorySerializer, SimpleProductSerializer
 from django.db.models import Count
 # Create your views here.
 
@@ -14,7 +14,7 @@ def view_products(request):
         serializer = ProductSerializer(products, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     if request.method == 'POST':
-        serializer = ProductSerializer(data=request.data)
+        serializer = SimpleProductSerializer(data=request.data)
         if serializer.is_valid():
              serializer.save()
              return Response("Product created successfully")
