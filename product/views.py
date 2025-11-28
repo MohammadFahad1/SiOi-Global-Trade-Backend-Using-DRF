@@ -17,7 +17,7 @@ def view_products(request):
         serializer = SimpleProductSerializer(data=request.data)
         if serializer.is_valid():
              serializer.save()
-             return Response("Product created successfully")
+             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
              return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
