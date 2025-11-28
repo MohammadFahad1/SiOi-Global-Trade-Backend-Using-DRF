@@ -15,11 +15,9 @@ def view_products(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     if request.method == 'POST':
         serializer = SimpleProductSerializer(data=request.data)
-        if serializer.is_valid():
-             serializer.save()
-             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view()
 def view_specific_products(request, pk):
