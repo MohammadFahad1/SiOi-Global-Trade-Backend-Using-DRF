@@ -57,3 +57,5 @@ class SimpleProductSerializer(serializers.ModelSerializer):
         if price < 0:
             raise serializers.ValidationError("Price must be a positive number.")
         return price
+    
+    
