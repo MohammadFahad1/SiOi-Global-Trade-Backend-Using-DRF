@@ -5,6 +5,7 @@ from rest_framework import status
 from product.models import Product, Category
 from product.serializers import ProductSerializer, CategorySerializer, SimpleProductSerializer
 from django.db.models import Count
+from rest_framework.views import APIView
 # Create your views here.
 
 @api_view(['GET', 'POST'])
@@ -14,6 +15,18 @@ def view_products(request):
         serializer = ProductSerializer(products, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     if request.method == 'POST':
+        serializer = SimpleProductSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class ViewProducts(APIView):
+    def get(self, request):
+        products = Product.objects.select_related('category').all()
+        serializer = ProductSerializer(products, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request):
         serializer = SimpleProductSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -36,6 +49,25 @@ def view_specific_products(request, pk):
             copy_of_product = ProductSerializer(product, context={'request': request}).data
             product.delete()
             return Response(copy_of_product, status=status.HTTP_204_NO_CONTENT)
+
+class ViewSpecificProduct(APIView):
+    def get(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        serializer = ProductSerializer(product, context={'request': request}).data
+        return Response(serializer, status=status.HTTP_200_OK)
+    
+    def put(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        serializer = SimpleProductSerializer(product, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def delete(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        copy_of_product = ProductSerializer(product, context={'request': request}).data
+        product.delete()
+        return Response(copy_of_product, status=status.HTTP_204_NO_CONTENT)
 
 @api_view()
 def view_categories(request):
