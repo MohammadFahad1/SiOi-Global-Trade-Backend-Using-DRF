@@ -75,6 +75,38 @@ def view_categories(request):
     serializer = CategorySerializer(categories, many=True, context={'request': request}).data
     return Response(serializer, status=status.HTTP_200_OK)
 
+class ViewCategories(APIView):
+    def get(self, request):
+        categories = Category.objects.annotate(product_count=Count('products')).all()
+        serializer = CategorySerializer(categories, many=True, context={'request': request}).data
+        return Response(serializer, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+        serializer = CategorySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class ViewSpecificCategory(APIView):
+    def get(self, request, pk):
+        # category = Category.objects.annotate(product_count=Count('products')).get(pk=pk)
+        category = get_object_or_404(Category.objects.annotate(product_count=Count('products')).all(), pk=pk)
+        serializer = CategorySerializer(category).data
+        return Response(serializer, status=status.HTTP_200_OK)
+    
+    def put(self, request, pk):
+        category = get_object_or_404(Category, pk=pk)
+        serializer = CategorySerializer(category, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def delete(self, request, pk):
+        category = get_object_or_404(Category, pk=pk)
+        copy_of_category = CategorySerializer(category).data
+        category.delete()
+        return Response(copy_of_category, status=status.HTTP_204_NO_CONTENT)
+
 @api_view()
 def view_specific_category(request, pk):
     category = Category.objects.annotate(product_count=Count('products')).get(pk=pk)
