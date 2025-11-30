@@ -8,18 +8,6 @@ from django.db.models import Count
 from rest_framework.views import APIView
 # Create your views here.
 
-@api_view(['GET', 'POST'])
-def view_products(request):
-    if request.method == 'GET':
-        products = Product.objects.select_related('category').all()
-        serializer = ProductSerializer(products, many=True, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    if request.method == 'POST':
-        serializer = SimpleProductSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
 class ViewProducts(APIView):
     def get(self, request):
         products = Product.objects.select_related('category').all()
@@ -31,24 +19,6 @@ class ViewProducts(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-@api_view(['GET', 'PUT', 'DELETE'])
-def view_specific_products(request, pk):
-        if request.method == 'GET':
-            product = get_object_or_404(Product, pk=pk)
-            serializer = ProductSerializer(product, context={'request': request}).data
-            return Response(serializer, status=status.HTTP_200_OK)
-        if request.method == 'PUT':
-            product = get_object_or_404(Product, pk=pk)
-            serializer = SimpleProductSerializer(product, data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        if request.method == 'DELETE':
-            product = get_object_or_404(Product, pk=pk)
-            copy_of_product = ProductSerializer(product, context={'request': request}).data
-            product.delete()
-            return Response(copy_of_product, status=status.HTTP_204_NO_CONTENT)
 
 class ViewSpecificProduct(APIView):
     def get(self, request, pk):
@@ -68,12 +38,6 @@ class ViewSpecificProduct(APIView):
         copy_of_product = ProductSerializer(product, context={'request': request}).data
         product.delete()
         return Response(copy_of_product, status=status.HTTP_204_NO_CONTENT)
-
-@api_view()
-def view_categories(request):
-    categories = Category.objects.annotate(product_count=Count('products')).all()
-    serializer = CategorySerializer(categories, many=True, context={'request': request}).data
-    return Response(serializer, status=status.HTTP_200_OK)
 
 class ViewCategories(APIView):
     def get(self, request):
@@ -106,9 +70,3 @@ class ViewSpecificCategory(APIView):
         copy_of_category = CategorySerializer(category).data
         category.delete()
         return Response(copy_of_category, status=status.HTTP_204_NO_CONTENT)
-
-@api_view()
-def view_specific_category(request, pk):
-    category = Category.objects.annotate(product_count=Count('products')).get(pk=pk)
-    serializer = CategorySerializer(category).data
-    return Response(serializer, status=status.HTTP_200_OK)
