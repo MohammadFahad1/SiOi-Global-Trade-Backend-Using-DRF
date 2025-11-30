@@ -22,8 +22,8 @@ class ViewProducts(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
 class ProductList(ListCreateAPIView):
-    def get_queryset(self):
-        return Product.objects.select_related('category').all()
+    queryset = Product.objects.select_related('category').all()
+    # serializer_class = ProductSerializer
     
     def get_serializer_class(self):
         return ProductSerializer if self.request.method == 'GET' else SimpleProductSerializer
