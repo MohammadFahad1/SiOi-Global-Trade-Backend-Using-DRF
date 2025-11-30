@@ -6,7 +6,7 @@ from product.models import Product, Category
 from product.serializers import ProductSerializer, CategorySerializer, SimpleProductSerializer
 from django.db.models import Count
 from rest_framework.views import APIView
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
 # Create your views here.
 
 class ViewProducts(APIView):
@@ -27,9 +27,20 @@ class ProductList(ListCreateAPIView):
     
     def get_serializer_class(self):
         return ProductSerializer if self.request.method == 'GET' else SimpleProductSerializer
+
+class ProductDetails(RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    """ lookup_field = 'id' # We don't need that since we're using the default pk as the lookup field """
+
+    def get_serializer_class(self):
+        return ProductSerializer if self.request.method == 'GET' else SimpleProductSerializer
     
-    # def get_serializer_context(self):
-    #     return {'request': self.request}
+    def delete(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        if product.stock > 10:
+            return Response({"message": "Product with stock more than 10 cannot be deleted."}, status=status.HTTP_400_BAD_REQUEST)
+        product.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ViewSpecificProduct(APIView):
@@ -50,6 +61,14 @@ class ViewSpecificProduct(APIView):
         copy_of_product = ProductSerializer(product, context={'request': request}).data
         product.delete()
         return Response(copy_of_product, status=status.HTTP_204_NO_CONTENT)
+
+class CategoryList(ListCreateAPIView):
+    queryset = Category.objects.annotate(product_count=Count('products')).all()
+    serializer_class = CategorySerializer
+
+class CategoryDetails(RetrieveUpdateDestroyAPIView):
+    queryset = Category.objects.annotate(product_count=Count('products')).all()
+    serializer_class = CategorySerializer
 
 class ViewCategories(APIView):
     def get(self, request):
