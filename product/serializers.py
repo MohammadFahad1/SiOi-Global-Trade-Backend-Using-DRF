@@ -20,7 +20,7 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'price', 'category', 'stock', 'category_info', 'price_with_tax']
     
     price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax', read_only=True)
-    category_info = serializers.HyperlinkedRelatedField(queryset=Category.objects.all(), view_name='category_detail', source='category')
+    category_info = serializers.HyperlinkedRelatedField(view_name='category-detail', source='category', read_only=True)
     # category = serializers.ModelField(model_field=Category()._meta.get_field('name'))
     category = NestedCategorySerializer()
 

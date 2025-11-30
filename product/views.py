@@ -7,97 +7,26 @@ from product.serializers import ProductSerializer, CategorySerializer, SimplePro
 from django.db.models import Count
 from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
+from rest_framework.viewsets import ModelViewSet 
 # Create your views here.
 
-class ViewProducts(APIView):
-    def get(self, request):
-        products = Product.objects.select_related('category').all()
-        serializer = ProductSerializer(products, many=True, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    def post(self, request):
-        serializer = SimpleProductSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-class ProductList(ListCreateAPIView):
+class ProductViewSet(ModelViewSet):
     queryset = Product.objects.select_related('category').all()
     # serializer_class = ProductSerializer
-    
-    def get_serializer_class(self):
-        return ProductSerializer if self.request.method == 'GET' else SimpleProductSerializer
-
-class ProductDetails(RetrieveUpdateDestroyAPIView):
-    queryset = Product.objects.all()
-    """ lookup_field = 'id' # We don't need that since we're using the default pk as the lookup field """
 
     def get_serializer_class(self):
-        return ProductSerializer if self.request.method == 'GET' else SimpleProductSerializer
-    
-    def delete(self, request, pk):
-        product = get_object_or_404(Product, pk=pk)
+        if self.action == 'list' or self.action == 'retrieve':
+            return ProductSerializer
+        return SimpleProductSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        product = self.get_object()
         if product.stock > 10:
-            return Response({"message": "Product with stock more than 10 cannot be deleted."}, status=status.HTTP_400_BAD_REQUEST)
-        product.delete()
+            return Response({"message": "Product with stock more than 10 could not be deleted."})
+        self.perform_destroy(product)
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class ViewSpecificProduct(APIView):
-    def get(self, request, pk):
-        product = get_object_or_404(Product, pk=pk)
-        serializer = ProductSerializer(product, context={'request': request}).data
-        return Response(serializer, status=status.HTTP_200_OK)
     
-    def put(self, request, pk):
-        product = get_object_or_404(Product, pk=pk)
-        serializer = SimpleProductSerializer(product, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    def delete(self, request, pk):
-        product = get_object_or_404(Product, pk=pk)
-        copy_of_product = ProductSerializer(product, context={'request': request}).data
-        product.delete()
-        return Response(copy_of_product, status=status.HTTP_204_NO_CONTENT)
 
-class CategoryList(ListCreateAPIView):
+class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.annotate(product_count=Count('products')).all()
     serializer_class = CategorySerializer
-
-class CategoryDetails(RetrieveUpdateDestroyAPIView):
-    queryset = Category.objects.annotate(product_count=Count('products')).all()
-    serializer_class = CategorySerializer
-
-class ViewCategories(APIView):
-    def get(self, request):
-        categories = Category.objects.annotate(product_count=Count('products')).all()
-        serializer = CategorySerializer(categories, many=True, context={'request': request}).data
-        return Response(serializer, status=status.HTTP_200_OK)
-    
-    def post(self, request):
-        serializer = CategorySerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-class ViewSpecificCategory(APIView):
-    def get(self, request, pk):
-        # category = Category.objects.annotate(product_count=Count('products')).get(pk=pk)
-        category = get_object_or_404(Category.objects.annotate(product_count=Count('products')).all(), pk=pk)
-        serializer = CategorySerializer(category).data
-        return Response(serializer, status=status.HTTP_200_OK)
-    
-    def put(self, request, pk):
-        category = get_object_or_404(Category, pk=pk)
-        serializer = CategorySerializer(category, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    def delete(self, request, pk):
-        category = get_object_or_404(Category, pk=pk)
-        copy_of_category = CategorySerializer(category).data
-        category.delete()
-        return Response(copy_of_category, status=status.HTTP_204_NO_CONTENT)
