@@ -11,8 +11,13 @@ from rest_framework.viewsets import ModelViewSet
 # Create your views here.
 
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.select_related('category').all()
-    # serializer_class = ProductSerializer
+    def get_queryset(self):
+        queryset = Product.objects.select_related('category').all()
+        category_id = self.request.query_params.get('category_id')
+
+        if category_id is not None:
+            queryset = Product.objects.select_related('category').filter(category_id=category_id)
+        return queryset
 
     def get_serializer_class(self):
         if self.action == 'list' or self.action == 'retrieve':
@@ -32,7 +37,6 @@ class CategoryViewSet(ModelViewSet):
     serializer_class = CategorySerializer
 
 class ReviewViewSet(ModelViewSet):
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
     def get_queryset(self):
