@@ -10,20 +10,15 @@ from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIVi
 from rest_framework.viewsets import ModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from product.filters import ProductFilter
+from rest_framework.filters import SearchFilter, OrderingFilter
 # Create your views here.
 
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.select_related('category').all()
-    filter_backends = [DjangoFilterBackend]
-    # filterset_fields = ['category_id', 'price']
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ProductFilter
-    # def get_queryset(self):
-    #     queryset = Product.objects.select_related('category').all()
-    #     category_id = self.request.query_params.get('category_id')
-
-    #     if category_id is not None:
-    #         queryset = Product.objects.select_related('category').filter(category_id=category_id)
-    #     return queryset
+    search_fields = ['name', 'description', 'category__name']
+    ordering_fields = ['price', 'updated_at']
 
     def get_serializer_class(self):
         if self.action == 'list' or self.action == 'retrieve':
