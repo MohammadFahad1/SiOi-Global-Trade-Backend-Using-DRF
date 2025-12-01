@@ -8,16 +8,22 @@ from django.db.models import Count
 from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
 from rest_framework.viewsets import ModelViewSet
+from django_filters.rest_framework import DjangoFilterBackend
+from product.filters import ProductFilter
 # Create your views here.
 
 class ProductViewSet(ModelViewSet):
-    def get_queryset(self):
-        queryset = Product.objects.select_related('category').all()
-        category_id = self.request.query_params.get('category_id')
+    queryset = Product.objects.select_related('category').all()
+    filter_backends = [DjangoFilterBackend]
+    # filterset_fields = ['category_id', 'price']
+    filterset_class = ProductFilter
+    # def get_queryset(self):
+    #     queryset = Product.objects.select_related('category').all()
+    #     category_id = self.request.query_params.get('category_id')
 
-        if category_id is not None:
-            queryset = Product.objects.select_related('category').filter(category_id=category_id)
-        return queryset
+    #     if category_id is not None:
+    #         queryset = Product.objects.select_related('category').filter(category_id=category_id)
+    #     return queryset
 
     def get_serializer_class(self):
         if self.action == 'list' or self.action == 'retrieve':
