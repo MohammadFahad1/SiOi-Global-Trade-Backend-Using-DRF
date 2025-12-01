@@ -23,3 +23,9 @@ class Product(models.Model):
     
     class Meta:
         ordering = ['-id']
+
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    date = models.DateTimeField(auto_now_add=True)

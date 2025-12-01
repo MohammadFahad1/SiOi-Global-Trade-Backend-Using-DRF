@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from decimal import Decimal
-from product.models import Category, Product
+from product.models import Category, Product, Review
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -37,4 +37,12 @@ class SimpleProductSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Price must be a positive number.")
         return price
     
-    
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'name', 'description', 'date']
+
+    def create(self, validated_data):
+        product_id = self.context['product_id']
+        return Review.objects.create(product_id=product_id, **validated_data)
