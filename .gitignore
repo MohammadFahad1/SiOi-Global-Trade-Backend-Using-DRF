@@ -2,6 +2,7 @@
 /__pycache__/
 *.pyc
 .env
+token.json
 
 # VSCode settings
 .vscode/
