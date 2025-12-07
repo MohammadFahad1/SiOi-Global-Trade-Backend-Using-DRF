@@ -12,8 +12,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from product.filters import ProductFilter
 from rest_framework.filters import SearchFilter, OrderingFilter
 from product.paginations import DefaultPagination
-from rest_framework.permissions import IsAdminUser, AllowAny
 from api.permissions import IsAdminOrReadOnly
+from rest_framework.permissions import DjangoModelPermissions, DjangoModelPermissionsOrAnonReadOnly
 # Create your views here.
 
 class ProductViewSet(ModelViewSet):
@@ -23,14 +23,16 @@ class ProductViewSet(ModelViewSet):
     filterset_class = ProductFilter
     search_fields = ['name', 'description', 'category__name']
     ordering_fields = ['price', 'updated_at']
-    permission_classes = [IsAdminOrReadOnly]
     # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminOrReadOnly]
+    # permission_classes = [DjangoModelPermissions]
+    # permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
 
-    def get_permissions(self):
-        # if self.action in ['list', 'retrieve']:
-        if self.request.method == 'GET':
-            return [AllowAny()]
-        return [IsAdminUser()]
+    # def get_permissions(self):
+    #     # if self.action in ['list', 'retrieve']:
+    #     if self.request.method == 'GET':
+    #         return [AllowAny()]
+    #     return [IsAdminUser()]
 
     def get_serializer_class(self):
         if self.action == 'list' or self.action == 'retrieve':
@@ -44,7 +46,6 @@ class ProductViewSet(ModelViewSet):
         self.perform_destroy(product)
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-
 class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.annotate(product_count=Count('products')).all()
     serializer_class = CategorySerializer

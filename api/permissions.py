@@ -5,3 +5,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         return request.user and request.user.is_staff
+
+class FullDjangoModelPermissions(permissions.DjangoModelPermissions):
+    def __init__(self):
+        self.perms_map['GET'] = ['%(app_label)s.view_%(model_name)s']
