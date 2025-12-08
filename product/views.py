@@ -14,6 +14,8 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from product.paginations import DefaultPagination
 from api.permissions import IsAdminOrReadOnly
 from rest_framework.permissions import DjangoModelPermissions, DjangoModelPermissionsOrAnonReadOnly
+from django.core.exceptions import PermissionDenied
+from product.permissions import IsReviewAuthorOrReadOnly
 # Create your views here.
 
 class ProductViewSet(ModelViewSet):
@@ -53,6 +55,17 @@ class CategoryViewSet(ModelViewSet):
 
 class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
+    permission_classes = [IsReviewAuthorOrReadOnly]
+
+    def perform_create(self, serializer):
+        if self.request.user.is_anonymous:
+            raise PermissionDenied("Authentication required to create a review.")
+        serializer.save(user=self.request.user)
+    
+    def perform_update(self, serializer):
+        if self.request.user.is_anonymous:
+            raise PermissionDenied("Authentication required to update a review.")
+        serializer.save(user=self.request.user)
 
     def get_queryset(self):
         return Review.objects.filter(product_id=self.kwargs['product_pk'])
