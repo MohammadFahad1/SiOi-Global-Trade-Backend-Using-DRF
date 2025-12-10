@@ -3,6 +3,7 @@ from users.models import User
 from product.models import Product
 from django.core.validators import MinValueValidator
 from uuid import uuid4
+import datetime
 
 # Create your models here.
 class Cart(models.Model):
@@ -43,7 +44,7 @@ class Order(models.Model):
         (DELIVERED, 'Delivered'),
         (CANCELLED, 'Cancelled'),
     ]
-
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=NOT_PAID)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
