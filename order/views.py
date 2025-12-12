@@ -13,14 +13,14 @@ class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, Gener
 
     def get_queryset(self):
         if self.request.user.is_staff:
-            return Cart.objects.all()
-        return Cart.objects.filter(user=self.request.user)
+            return Cart.objects.prefetch_related('items__product').all()
+        return Cart.objects.prefetch_related('items__product').filter(user=self.request.user)
 
 class CartItemViewSet(ModelViewSet):
     http_method_names = ['get', 'post', 'delete', 'patch']
 
     def get_queryset(self):
-        return CartItem.objects.filter(cart_id=self.kwargs['cart_pk'])
+        return CartItem.objects.select_related('product').filter(cart_id=self.kwargs['cart_pk'])
     
     def get_serializer_class(self):
         if self.action == 'create':
