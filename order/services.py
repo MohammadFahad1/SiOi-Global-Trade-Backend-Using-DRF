@@ -1,6 +1,7 @@
 from order.models import Cart, CartItem, Order, OrderItem
 from decimal import Decimal
 from django.db import transaction
+from rest_framework.exceptions import PermissionDenied, ValidationError
 
 class OrderService:
     @staticmethod
@@ -25,3 +26,15 @@ class OrderService:
             OrderItem.objects.bulk_create(order_items)
             cart.delete()
             return order
+        
+    @staticmethod
+    def cancel_order(order, user):
+        if order.user == user and not order.status == Order.DELIVERED or user.is_staff:
+            order.status = Order.CANCELLED
+            order.save()
+            return order
+        if not order.user == user:
+            return PermissionDenied({"detail": "You do not have permission to cancel this order."})
+        if order.status == Order.CANCELLED or order.status == Order.DELIVERED:
+            raise ValidationError({"detail": "This order cannot be cancelled."})
+        return order

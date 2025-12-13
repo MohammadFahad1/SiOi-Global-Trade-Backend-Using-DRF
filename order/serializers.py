@@ -87,6 +87,21 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['status']
+
+    def update(self, instance, validated_data):
+        user = self.context['user']
+        new_status = validated_data.get('status')
+        print("New Status:", new_status)
+        print("Instance Status:", instance.status)
+        print("User:", user)
+        if new_status == Order.CANCELLED:
+            return OrderService.cancel_order(order=instance, user=user)
+        
+        # Is Admin ?
+        if not user.is_staff:
+            raise serializers.ValidationError({"detail": "Only admin users can update the order status to this value."})
+        
+        return super().update(instance, validated_data)
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)
     class Meta:
