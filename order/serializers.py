@@ -4,6 +4,9 @@ from product.models import Product
 from decimal import Decimal
 from order.services import OrderService
 
+class EmptySerializer(serializers.Serializer):
+    pass
+
 class SimpleProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
@@ -52,7 +55,7 @@ class CartSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
     
     def get_total_price(self, cart: Cart):
-        return sum([item.product.price * item.quantity for item in cart.items.all()], Decimal(2))
+        return sum([item.product.price * item.quantity for item in cart.items.all()])
 
 class CreateOrderSerializer(serializers.Serializer):
     cart_id = serializers.UUIDField()
@@ -91,9 +94,6 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         user = self.context['user']
         new_status = validated_data.get('status')
-        print("New Status:", new_status)
-        print("Instance Status:", instance.status)
-        print("User:", user)
         if new_status == Order.CANCELLED:
             return OrderService.cancel_order(order=instance, user=user)
         

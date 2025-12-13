@@ -10,7 +10,7 @@ class OrderService:
             cart = Cart.objects.get(pk=cart_id)
             cart_items = cart.items.select_related('product').all()
 
-            total_price = sum([item.product.price * item.quantity for item in cart_items], Decimal(2))
+            total_price = sum([item.product.price * item.quantity for item in cart_items])
 
             order = Order.objects.create(user_id=user_id, total_price=total_price)
             order_items = [
