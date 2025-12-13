@@ -2,6 +2,7 @@ from rest_framework import serializers
 from order.models import Cart, CartItem, Order, OrderItem
 from product.models import Product
 from decimal import Decimal
+from order.services import OrderService
 
 class SimpleProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -51,7 +52,7 @@ class CartSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
     
     def get_total_price(self, cart: Cart):
-        return sum([item.product.price * item.quantity for item in cart.items.all()])
+        return sum([item.product.price * item.quantity for item in cart.items.all()], Decimal(2))
 
 class CreateOrderSerializer(serializers.Serializer):
     cart_id = serializers.UUIDField()
@@ -66,26 +67,11 @@ class CreateOrderSerializer(serializers.Serializer):
     def create(self, validated_data):
         user_id = self.context['user_id']
         cart_id = validated_data['cart_id']
-
-        cart = Cart.objects.get(pk=cart_id)
-        cart_items = cart.items.select_related('product').all()
-
-        total_price = sum([item.product.price * item.quantity for item in cart_items], Decimal(2))
-
-        order = Order.objects.create(user_id=user_id, total_price=total_price)
-        order_items = [
-            OrderItem(
-                order=order,
-                product=item.product,
-                price=item.product.price,
-                quantity=item.quantity,
-                subtotal = item.product.price * item.quantity
-            ) for item in cart_items
-        ]
-        # [<OrderItem(1)>, <OrderItem(2)>, <OrderItem(3)>, ...]
-        OrderItem.objects.bulk_create(order_items)
-        cart.delete()
-        return order
+        try:
+            order = OrderService.create_order(user_id=user_id, cart_id=cart_id)
+            return order
+        except ValueError as e:
+            raise serializers.ValidationError(str(e))
     
     def to_representation(self, instance):
         return OrderSerializer(instance).data
