@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from decimal import Decimal
-from product.models import Category, Product, Review
+from product.models import Category, Product, Review, ProductImage
 from django.contrib.auth import get_user_model
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,10 +14,16 @@ class NestedCategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ['id', 'name', 'description']
 
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'image']
+
 class ProductSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True, read_only=True)
     class Meta:
         model = Product
-        fields = ['id', 'name', 'description', 'price', 'category', 'stock', 'category_info', 'price_with_tax']
+        fields = ['id', 'name', 'description', 'images', 'price', 'category', 'stock', 'category_info', 'price_with_tax']
     
     price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax', read_only=True)
     category_info = serializers.HyperlinkedRelatedField(view_name='category-detail', source='category', read_only=True)
