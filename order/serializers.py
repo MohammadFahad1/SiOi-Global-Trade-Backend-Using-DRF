@@ -9,8 +9,9 @@ class EmptySerializer(serializers.Serializer):
 
 class SimpleProductSerializer(serializers.ModelSerializer):
     class Meta:
+        ref_name = "SimpleProductSerializerForCartAndOrder"
         model = Product
-        fields = ['id', 'name', 'image', 'price']
+        fields = ['id', 'name', 'images', 'price']
 
 class AddCartItemSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField()

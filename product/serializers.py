@@ -35,6 +35,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class SimpleProductSerializer(serializers.ModelSerializer):
     class Meta:
+        ref_name = "SimpleProductSerializer"
         model = Product
         fields = ['id', 'name', 'description', 'category', 'stock', 'price']
 
