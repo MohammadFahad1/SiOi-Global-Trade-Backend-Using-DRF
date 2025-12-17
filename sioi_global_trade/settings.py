@@ -165,3 +165,14 @@ DJOSER = {
         'current_user': 'users.serializers.UserSerializer',
     }
 }
+
+SWAGGER_SETTINGS = {
+   'SECURITY_DEFINITIONS': {
+      'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'JWT Authorization header using the Bearer scheme. Example: `JWT <Your_Token_Here>`'
+      }
+   }
+}
