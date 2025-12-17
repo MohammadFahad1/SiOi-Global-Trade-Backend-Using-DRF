@@ -7,7 +7,7 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ['id', 'name', 'description', 'product_count']
     
-    product_count = serializers.IntegerField(read_only=True)
+    product_count = serializers.IntegerField(read_only=True, help_text="Returns the number of products in this category.")
 
 class NestedCategorySerializer(serializers.ModelSerializer):
     class Meta:

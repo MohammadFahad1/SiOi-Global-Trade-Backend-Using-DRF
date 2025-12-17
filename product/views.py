@@ -11,9 +11,17 @@ from product.paginations import DefaultPagination
 from api.permissions import IsAdminOrReadOnly
 from django.core.exceptions import PermissionDenied
 from product.permissions import IsReviewAuthorOrReadOnly
+from drf_yasg.utils import swagger_auto_schema
 # Create your views here.
 
 class ProductViewSet(ModelViewSet):
+    """ 
+    API endpoint for managing products in the e-commerce store.
+    - Allows authenticated admin users to create, update, and delete products.
+    - Allows all users to view products, product details and filter products. 
+    - Supports searching by name, description and category
+    - Supports ordering by price and updated_at.
+    """
     queryset = Product.objects.select_related('category').all()
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     pagination_class = DefaultPagination
@@ -30,6 +38,28 @@ class ProductViewSet(ModelViewSet):
     #     if self.request.method == 'GET':
     #         return [AllowAny()]
     #     return [IsAdminUser()]
+
+    @swagger_auto_schema(
+            operation_summary="List all products with pagination, filtering, searching, and ordering (All Users)",
+            operation_description="Retrieve a paginated list of products. Supports filtering by category, price range, and availability. Supports searching by name and description. Supports ordering by price and last updated date.",
+    )
+    def list(self, request, *args, **kwargs):
+        """
+        Retrieve a list of products with pagination, filtering, searching, and ordering.
+        """
+        return super().list(request, *args, **kwargs)
+    
+    @swagger_auto_schema(
+            operation_summary="Create a new product (Admin only)",
+            operation_description="Only admin users can create new products.",
+            request_body=SimpleProductSerializer,
+            responses={201: SimpleProductSerializer, 400: 'Bad Request'},
+    )
+    def create(self, request, *args, **kwargs):
+        # """
+        # Only admin users can create new products.
+        # """
+        return super().create(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.action == 'list' or self.action == 'retrieve':
