@@ -15,6 +15,7 @@ class NestedCategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description']
 
 class ProductImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField()
     class Meta:
         model = ProductImage
         fields = ['id', 'image']
