@@ -3,6 +3,7 @@
 *.pyc
 .env
 token.json
+db.sqlite3
 
 # VSCode settings
 .vscode/

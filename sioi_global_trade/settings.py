@@ -93,7 +93,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'sioi_global_trade.wsgi.application'
+WSGI_APPLICATION = 'sioi_global_trade.wsgi.app'
 
 INTERNAL_IPS = [
     # ...
