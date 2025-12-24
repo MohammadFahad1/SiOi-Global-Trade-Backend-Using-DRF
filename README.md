@@ -5,6 +5,10 @@ This project provides scalable, secure, and well-documented APIs for managing an
 
 ---
 
+### ☯️ Project Live Link
+
+[https://sioi-global-trade-backend-using-drf.vercel.app/](https://sioi-global-trade-backend-using-drf.vercel.app/)
+
 ## 🚀 Features
 
 ### 🔐 Authentication & Authorization
@@ -47,12 +51,11 @@ This project provides scalable, secure, and well-documented APIs for managing an
 ```
 
 project_root/
-├── accounts/
-├── products/
-├── categories/
-├── brands/
-├── carts/
-├── orders/
+├── api/
+├── order/
+├── product/
+├── sioi_global_trade/
+├── users/
 ├── manage.py
 └── requirements.txt
 
@@ -65,8 +68,8 @@ project_root/
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
+git https://github.com/MohammadFahad1/SiOi-Global-Trade-Backend-Using-DRF.git
+cd SiOi-Global-Trade-Backend-Using-DRF
 ```
 
 ### 2️⃣ Create Virtual Environment
@@ -88,13 +91,21 @@ pip install -r requirements.txt
 Create a `.env` file and configure:
 
 ```env
-SECRET_KEY=your_secret_key
-DEBUG=True
-DATABASE_NAME=your_db
-DATABASE_USER=your_user
-DATABASE_PASSWORD=your_password
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
+# Django Secret Key
+SECRET_KEY=your_project_secret_key
+
+# Database Configuration
+user=your_db_user
+password=your_db_password
+host=your_db_host
+port=5432 (correct if the is not default)
+dbname=postgres (correct if not default)
+
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME=enter_your_cloud_name
+CLOUDINARY_API_KEY=enter_your_api_key
+CLOUDINARY_API_SECRET=enter_your_api_secret
+CLOUDINARY_URL=enter_your_cloudinary_url
 ```
 
 ### 5️⃣ Run Migrations
@@ -143,7 +154,6 @@ Password: user@123
 | ------------- | -------------------- |
 | Login         | `/auth/jwt/create/`  |
 | Refresh Token | `/auth/jwt/refresh/` |
-| Logout        | `/auth/jwt/logout/`  |
 | Register      | `/auth/users/`       |
 
 ---
