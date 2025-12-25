@@ -106,6 +106,13 @@ CLOUDINARY_CLOUD_NAME=enter_your_cloud_name
 CLOUDINARY_API_KEY=enter_your_api_key
 CLOUDINARY_API_SECRET=enter_your_api_secret
 CLOUDINARY_URL=enter_your_cloudinary_url
+
+# Email configuration
+EMAIL_HOST=your_email_host
+EMAIL_USE_TLS=True (Change to False if not using TLS)
+EMAIL_PORT=587 (Default port for TLS)
+EMAIL_HOST_USER=your_email_address
+EMAIL_HOST_PASSWORD=your_email_password
 ```
 
 ### 5️⃣ Run Migrations
