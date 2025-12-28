@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import status
-from product.models import Product, Category, Review, ProductImage
-from product.serializers import ProductSerializer, CategorySerializer, SimpleProductSerializer, ReviewSerializer, ProductImageSerializer
+from product.models import Product, Category, Review, ProductImage, Brand
+from product.serializers import ProductSerializer, CategorySerializer, SimpleProductSerializer, ReviewSerializer, ProductImageSerializer, BrandSerializer
 from django.db.models import Count
 from rest_framework.viewsets import ModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
@@ -81,6 +81,13 @@ class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.annotate(product_count=Count('products')).all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
+
+
+class BrandViewSet(ModelViewSet):
+    queryset = Brand.objects.all()
+    serializer_class = BrandSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
 
 class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
