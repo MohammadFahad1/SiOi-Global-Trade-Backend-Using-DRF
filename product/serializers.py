@@ -24,7 +24,7 @@ class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
     class Meta:
         model = Product
-        fields = ['id', 'name', 'description', 'images', 'price', 'category', 'stock', 'category_info', 'price_with_tax']
+        fields = ['id', 'name', 'description', 'images', 'price', 'category', 'brand', 'stock', 'category_info', 'price_with_tax']
     
     price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax', read_only=True)
     category_info = serializers.HyperlinkedRelatedField(view_name='category-detail', source='category', read_only=True)
@@ -38,7 +38,7 @@ class SimpleProductSerializer(serializers.ModelSerializer):
     class Meta:
         ref_name = "SimpleProductSerializer"
         model = Product
-        fields = ['id', 'name', 'description', 'category', 'stock', 'price']
+        fields = ['id', 'name', 'description', 'category', 'brand', 'stock', 'price']
 
     def validate_price(self, price):
         if price < 0:
